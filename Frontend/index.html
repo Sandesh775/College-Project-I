@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LuxeGlow | Parlour & Salon Appointment System</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="style.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+      <div class="brand-logo">
+        <i class="fa-solid fa-scissors"></i> LuxeGlow Parlour
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchView('customer')">
+          Customer Portal
+        </button>
+        <button class="nav-tab" onclick="switchView('admin')">
+          Admin Panel
+        </button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- CUSTOMER VIEW -->
+      <main id="customerView" class="view-panel active">
+        <!-- Services Section -->
+        <section style="margin-bottom: 3rem">
+          <h2 style="margin-bottom: 0.5rem">Explore Our Services</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem">
+            Select a premium service and reserve your spot effortlessly.
+          </p>
+          <div id="customerServiceGrid" class="grid-3">
+            <!-- Dynamic rendering from JS -->
+          </div>
+        </section>
+
+        <!-- Booking History Section -->
+        <section>
+          <h3 style="margin-bottom: 1rem">Your Appointments & History</h3>
+          <div class="card table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Reference ID</th>
+                  <th>Service</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customerBookingTable">
+                <!-- Dynamic rendering from JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <!-- ADMIN VIEW -->
+      <main id="adminView" class="view-panel">
+        <!-- Metrics Summary -->
+        <div class="grid-3" style="margin-bottom: 2rem">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+              <div style="color: var(--text-muted); font-size: 0.85rem">
+                Today's Bookings
+              </div>
+              <div
+                id="metricBookingsCount"
+                style="font-size: 1.5rem; font-weight: 700"
+              >
+                0
+              </div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div>
+              <div style="color: var(--text-muted); font-size: 0.85rem">
+                Est. Daily Revenue
+              </div>
+              <div
+                id="metricRevenue"
+                style="
+                  font-size: 1.5rem;
+                  font-weight: 700;
+                  color: var(--accent-gold);
+                "
+              >
+                NPR 0
+              </div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <div style="color: var(--text-muted); font-size: 0.85rem">
+                Active Staff
+              </div>
+              <div
+                id="metricStaffCount"
+                style="font-size: 1.5rem; font-weight: 700"
+              >
+                0
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+          "
+        >
+          <h2>Appointment Management</h2>
+          <div style="display: flex; gap: 0.5rem">
+            <button class="btn btn-secondary" onclick="openStaffModal()">
+              <i class="fa-solid fa-user-plus"></i> Manage Staff
+            </button>
+            <button class="btn btn-secondary" onclick="openServiceModal()">
+              <i class="fa-solid fa-plus"></i> Add Service
+            </button>
+            <button class="btn btn-primary" onclick="openWalkInModal()">
+              <i class="fa-solid fa-walkie-talkie"></i> Add Walk-In
+            </button>
+          </div>
+        </div>
+
+        <!-- All Appointments Table -->
+        <div class="card table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref ID</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Assigned Staff</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                <th>Update Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminAppointmentsTable">
+              <!-- Dynamic rendering from JS -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Customer Booking Modal -->
+    <div class="modal-overlay" id="bookingModal">
+      <div class="modal">
+        <button class="close-modal" onclick="closeModal('bookingModal')">
+          &times;
+        </button>
+        <h3 style="margin-bottom: 1.5rem">Book Appointment</h3>
+        <form id="bookingForm" onsubmit="handleCustomerBooking(event)">
+          <input type="hidden" id="bookServiceId" />
+          <div class="form-group">
+            <label>Selected Service</label>
+            <input
+              type="text"
+              id="bookServiceName"
+              class="form-control"
+              readonly
+            />
+          </div>
+          <div class="form-group">
+            <label>Your Full Name</label>
+            <input
+              type="text"
+              id="bookCustomerName"
+              class="form-control"
+              required
+              placeholder="e.g. Sita Sharma"
+            />
+          </div>
+          <div class="form-group">
+            <label>Preferred Date & Time</label>
+            <input
+              type="datetime-local"
+              id="bookDateTime"
+              class="form-control"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Confirm Booking
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Walk-In Modal -->
+    <div class="modal-overlay" id="walkInModal">
+      <div class="modal">
+        <button class="close-modal" onclick="closeModal('walkInModal')">
+          &times;
+        </button>
+        <h3 style="margin-bottom: 1.5rem">Record Walk-In Customer</h3>
+        <form id="walkInForm" onsubmit="handleWalkInBooking(event)">
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input
+              type="text"
+              id="walkInName"
+              class="form-control"
+              required
+              placeholder="Walk-in Client Name"
+            />
+          </div>
+          <div class="form-group">
+            <label>Select Service</label>
+            <select
+              id="walkInServiceSelect"
+              class="form-control"
+              required
+            ></select>
+          </div>
+          <div class="form-group">
+            <label>Assign Staff</label>
+            <select
+              id="walkInStaffSelect"
+              class="form-control"
+              required
+            ></select>
+          </div>
+          <div class="form-group">
+            <label>Date & Time</label>
+            <input
+              type="datetime-local"
+              id="walkInDateTime"
+              class="form-control"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Add Walk-in Booking
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Add Service Modal -->
+    <div class="modal-overlay" id="serviceModal">
+      <div class="modal">
+        <button class="close-modal" onclick="closeModal('serviceModal')">
+          &times;
+        </button>
+        <h3 style="margin-bottom: 1.5rem">Add New Service</h3>
+        <form onsubmit="handleAddService(event)">
+          <div class="form-group">
+            <label>Service Title</label>
+            <input
+              type="text"
+              id="newServiceName"
+              class="form-control"
+              required
+              placeholder="e.g. Hair Spa & Style"
+            />
+          </div>
+          <div class="form-group">
+            <label>Price (NPR)</label>
+            <input
+              type="number"
+              id="newServicePrice"
+              class="form-control"
+              required
+              placeholder="1200"
+            />
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              id="newServiceDesc"
+              class="form-control"
+              rows="3"
+              required
+              placeholder="Brief description of the service..."
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Save Service
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Manage Staff Modal -->
+    <div class="modal-overlay" id="staffModal">
+      <div class="modal">
+        <button class="close-modal" onclick="closeModal('staffModal')">
+          &times;
+        </button>
+        <h3 style="margin-bottom: 1rem">Manage Staff Members</h3>
+        <form
+          onsubmit="handleAddStaff(event)"
+          style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem"
+        >
+          <input
+            type="text"
+            id="newStaffName"
+            class="form-control"
+            placeholder="Staff Name"
+            required
+          />
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+        <ul
+          id="staffListContainer"
+          style="
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+          "
+        >
+          <!-- Staff members rendered dynamically -->
+        </ul>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
